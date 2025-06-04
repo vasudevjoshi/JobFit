@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer');
 const mailSender = async(email ,title ,Subject)=>{
      try{
         const transporter = nodemailer.createTransport({
+        // service:"Gmail",
         host:process.env.MAIL_HOST,
         auth:{
             user:process.env.MAIL_USER,
@@ -20,3 +21,5 @@ const mailSender = async(email ,title ,Subject)=>{
         console.log(error.message);
     }
 }
+
+module.exports = mailSender;
