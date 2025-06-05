@@ -1,9 +1,39 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { IoDocumentText } from "react-icons/io5";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  // Check login state by calling backend (cookie-based auth)
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/v1/me', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        setIsLoggedIn(res.ok);
+      } catch {
+        setIsLoggedIn(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:5000/api/v1/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch {}
+    setIsLoggedIn(false);
+    setMenuOpen(false);
+    navigate('/login');
+  };
 
   return (
     <div className="w-full h-18 bg-white shadow-sm relative">
@@ -42,12 +72,28 @@ const Navbar = () => {
           </ul>
         </div>
         <div className="hidden md:flex items-center gap-x-4">
-          <Link to="/login" className="flex items-center">
-            <button className="text-md font-black-500 hover:text-blue-600">Login</button>
-          </Link>
-          <Link to="/signup">
-            <button className="w-20 h-10 text-md text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Sign Up</button>
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link to="/profile">
+                <button className="w-20 h-10 text-md text-blue-600 bg-white border border-blue-200 hover:bg-blue-50 rounded-lg">Profile</button>
+              </Link>
+              <button
+                className="w-20 h-10 text-md text-white bg-red-500 hover:bg-red-600 rounded-lg"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="flex items-center">
+                <button className="text-md font-black-500 hover:text-blue-600">Login</button>
+              </Link>
+              <Link to="/signup">
+                <button className="w-20 h-10 text-md text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Sign Up</button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
       {/* Mobile Menu */}
@@ -60,14 +106,32 @@ const Navbar = () => {
             <li>
               <Link to="/analyser" className="block py-2 hover:text-blue-600" onClick={() => setMenuOpen(false)}>Analyser</Link>
             </li>
-            <li>
-              <Link to="/login" className="block py-2 hover:text-blue-600" onClick={() => setMenuOpen(false)}>Login</Link>
-            </li>
-            <li>
-              <Link to="/signup" className="block py-2">
-                <button className="w-full h-10 text-md text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Sign Up</button>
-              </Link>
-            </li>
+            {isLoggedIn ? (
+              <>
+                <li>
+                  <Link to="/profile" className="block py-2 hover:text-blue-600" onClick={() => setMenuOpen(false)}>Profile</Link>
+                </li>
+                <li>
+                  <button
+                    className="w-full h-10 text-md text-white bg-red-500 hover:bg-red-600 rounded-lg"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link to="/login" className="block py-2 hover:text-blue-600" onClick={() => setMenuOpen(false)}>Login</Link>
+                </li>
+                <li>
+                  <Link to="/signup" className="block py-2">
+                    <button className="w-full h-10 text-md text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Sign Up</button>
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       )}
@@ -75,4 +139,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default Navbar;

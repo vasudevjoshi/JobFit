@@ -1,6 +1,3 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import Home from './pages/Home'
 import Analyser from './pages/Analyse'
@@ -9,6 +6,7 @@ import Signup from './pages/Signup'
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import { Toaster, toast } from 'react-hot-toast';
 function App() {
 
 
@@ -23,6 +21,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
       </Routes>
       <Footer/>
+      <Toaster/>
     </div>
   )
 }

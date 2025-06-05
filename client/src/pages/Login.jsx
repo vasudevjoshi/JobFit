@@ -1,24 +1,49 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
-
+import { toast } from 'react-hot-toast'
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log('Form submitted:', formData);
-  };
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+    setSuccess(false);
+    try {
+      const res = await fetch('http://localhost:5000/api/v1/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSuccess(true);
+        setMessage('Login successful!');
+        toast.success('Login successful!');
+        // Optionally save token: localStorage.setItem('token', data.token);
+        setTimeout(() => navigate('/'), 1000); // Redirect after 1s
+      } else {
+        setMessage(data.message || 'Login failed');
+        toast.error(data.message || 'Login failed');
+      }
+    } catch (err) {
+      setMessage('Error during login');
+       toast.error(data.message || 'Login failed');
+    }
+    setLoading(false);
   };
 
   return (
@@ -36,6 +61,10 @@ const Login = () => {
               <p>Or <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">create a new account</Link></p>
             </div>
           </div>
+          {message && (
+            <div className={`my-4 text-center text-sm ${success ? 'text-green-600' : 'text-red-600'}`}>
+            </div>
+          )}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
@@ -86,8 +115,9 @@ const Login = () => {
               <button
                 type="submit"
                 className="w-full flex justify-center py-3 border border-transparent rounded-lg shadow-sm text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                disabled={loading}
               >
-                Sign in
+                {loading ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
           </form>
