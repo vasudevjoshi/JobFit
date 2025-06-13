@@ -16,10 +16,10 @@ const info = [
 
 // Update icons to include route paths
 const icons = [
-  { icon: <Facebook />, path: '/home' },
+  { icon: <Facebook />, path: 'https://www.facebook.com/vasujoshi2003' },
   { icon: <Instagram />, path: '/' },
-  { icon: <Twitter />, path: '/' },
-  { icon: <Github />, path: '/' }
+  { icon: <Twitter />, path: 'https://www.x.com/vasujoshi2003' },
+  { icon: <Github />, path: 'https://www.github.com/vasudevjoshi' }
 ];
 
 const Footer = () => {
