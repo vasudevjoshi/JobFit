@@ -1,8 +1,17 @@
 import React from 'react'
 import { info } from '../constants/WhyChooseSkillMatch'
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 const WhyChooseSkillMatch = () => {
+   const ref = useRef(null);
+    const isInView = useInView(ref, { once: true });
   return (
-    <div className="py-10 sm:py-16 bg-gray-50">
+    <motion.div 
+    ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1.0, ease: "easeIn" }}
+    className="py-10 sm:py-16 bg-gray-50">
       <div className="max-w-5xl mx-auto px-4">
         <p className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">
           Why Choose SkillMatch
@@ -16,7 +25,7 @@ const WhyChooseSkillMatch = () => {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

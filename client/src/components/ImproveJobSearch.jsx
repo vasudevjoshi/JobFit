@@ -1,9 +1,18 @@
 import React from 'react'
 import { ArrowRight } from 'lucide-react'
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 const ImproveJobSearch = () => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
   return (
-    <div className="w-11/12 sm:w-10/12 py-10 sm:py-16 mt-10 sm:mt-20 bg-blue-600 mx-auto rounded-lg">
+    <motion.div 
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1.0, ease: "easeIn" }}
+    className="w-11/12 sm:w-10/12 py-10 sm:py-16 mt-10 sm:mt-20 bg-blue-600 mx-auto rounded-lg">
       <div className="max-w-4xl mx-auto text-center text-white px-2 sm:px-4">
         <p className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
           Ready to Improve Your Job Search
@@ -15,7 +24,7 @@ const ImproveJobSearch = () => {
           Get Started <ArrowRight className="ml-2" />
         </button>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

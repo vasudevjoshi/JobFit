@@ -7,6 +7,7 @@ import Testimonial from '../components/Testimonial'
 import ImproveJobSearch from '../components/ImproveJobSearch'
 import Footer from '../components/Footer'
 
+
 const Home = () => {
   return (
     <div className="w-full min-h-screen bg-white">

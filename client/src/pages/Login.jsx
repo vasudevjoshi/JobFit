@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import { toast } from 'react-hot-toast'
+import {useAuth} from '../context/Auth.jsx'; // Adjust the import path as necessary
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
-
+  const Auth = useAuth();
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -28,20 +29,23 @@ const Login = () => {
         body: JSON.stringify(formData),
         credentials: 'include'
       });
-      const data = await res.json();
-      if (data.success) {
+      const result = await res.json();
+      if (result.success) {
         setSuccess(true);
         setMessage('Login successful!');
         toast.success('Login successful!');
+        Auth.setUser(result.data);
+        Auth.setIsAuthenticated(true);
+        Auth.setLoading(false);
         // Optionally save token: localStorage.setItem('token', data.token);
         setTimeout(() => navigate('/'), 1000); // Redirect after 1s
       } else {
-        setMessage(data.message || 'Login failed');
-        toast.error(data.message || 'Login failed');
+        setMessage(result.message || 'Login failed');
+        toast.error(result.message || 'Login failed');
       }
     } catch (err) {
       setMessage('Error during login');
-       toast.error(data.message || 'Login failed');
+       toast.error(result.message || 'Login failed');
     }
     setLoading(false);
   };

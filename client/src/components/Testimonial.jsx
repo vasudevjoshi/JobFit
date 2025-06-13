@@ -1,8 +1,17 @@
 import React from 'react'
 import { info } from '../constants/testimonial'
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 const Testimonial = () => {
+  const ref = useRef(null);
+      const isInView = useInView(ref, { once: true });
   return (
-    <div className="py-10 sm:py-16 mt-10 sm:mt-20">
+    <motion.div 
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1.0, ease: "easeIn" }}
+    className="py-10 sm:py-16 mt-10 sm:mt-20">
       <div className="max-w-5xl mx-auto px-4">
         <p className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">
           What Our Users Say
@@ -25,7 +34,7 @@ const Testimonial = () => {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
