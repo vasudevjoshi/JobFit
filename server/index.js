@@ -10,13 +10,24 @@ const fileUpload = require("express-fileupload");
 const cookieParser = require('cookie-parser');
 connectDB();
 app.use(cookieParser());
-// app.use(cors({
-//   origin: 'http://localhost:5173',
-//   credentials: true
-// }));
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://your-frontend-domain.com'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 
 app.use(express.json());
-app.use(cors());
+
 app.use(fileUpload());
 
 app.use('/api/v1/',userRoutes);
