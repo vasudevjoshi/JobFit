@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const isLoggedIn = async (req,res,next) =>{
     try{
         const token  = req.cookies.token|| req.body.token || req.header("Authorization").replace("Bearer ","");
@@ -9,8 +10,10 @@ const isLoggedIn = async (req,res,next) =>{
             });
         }
         try{
-            const decoded = jwt.verify(token,process.env.JWT_SECRET_KEY);
+
+            const decoded = jwt.verify(token,process.env.JWT_SECRET);
             req.user = decoded;
+
         }catch(error){
             return res.status(401).json({
                 success:false,
