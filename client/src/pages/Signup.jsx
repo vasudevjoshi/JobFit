@@ -28,7 +28,7 @@ const Signup = () => {
     setLoading(true);
     setMessage('');
     try {
-      const res = await fetch('http://localhost:5000/api/v1/send-otp', {
+      const res = await fetch('https://jobfit-dk4l.onrender.com/api/v1/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email })
@@ -55,7 +55,7 @@ const Signup = () => {
     setLoading(true);
     setMessage('');
     try {
-      const res = await fetch('http://localhost:5000/api/v1/signup', {
+      const res = await fetch('https://jobfit-dk4l.onrender.com/api/v1/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

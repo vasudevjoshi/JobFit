@@ -23,7 +23,7 @@ const Login = () => {
     setMessage('');
     setSuccess(false);
     try {
-      const res = await fetch('http://localhost:5000/api/v1/login', {
+      const res = await fetch('https://jobfit-dk4l.onrender.com/api/v1/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -45,7 +45,7 @@ const Login = () => {
       }
     } catch (err) {
       setMessage('Error during login');
-       toast.error(result.message || 'Login failed');
+       toast.error(err.message || 'Login failed');
     }
     setLoading(false);
   };
