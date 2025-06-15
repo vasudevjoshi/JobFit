@@ -11,16 +11,21 @@ const cookieParser = require('cookie-parser');
 connectDB();
 app.use(cookieParser());
 const allowedOrigins = [
-  'http://localhost:5173',
-  'https://adorable-tapioca-e0ee6d.netlify.app/'
+  'https://adorable-tapioca-e0ee6d.netlify.app',
+  'http://localhost:5173'
 ];
 
+app.use(cookieParser());
+
+// CORS setup
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      return callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
