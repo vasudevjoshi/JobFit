@@ -12,7 +12,7 @@ connectDB();
 app.use(cookieParser());
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://your-frontend-domain.com'
+  'https://adorable-tapioca-e0ee6d.netlify.app/'
 ];
 
 app.use(cors({
