@@ -2,6 +2,7 @@ import React from "react";
 import { Circle, FileText, Upload, Briefcase, FileUp, X } from "lucide-react";
 import { useState } from "react";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import Results from "../components/results";
 const Analyse = () => {
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [jobDescriptionUploaded, setJobDescriptionUploaded] = useState(false);
@@ -11,7 +12,75 @@ const Analyse = () => {
     resume: null,
     jobDescription: null,
   });
+  const data = {
+    "success": true,
+    "score": 75,
+    "matchedSkills": [
+        "html",
+        "css",
+        "javascript",
+        "react.js",
+        "node.js",
+        "express.js",
+        "rest apis",
+        "graphql",
+        "mongodb",
+        "postgresql",
+        "python",
+        "pandas",
+        "numpy",
+        "sql",
+        "power bi",
+        "scikit-learn",
+        "tensorflow",
+        "pytorch",
+        "nlp",
+        "flask",
+        "fastapi",
+        "docker",
+        "kubernetes",
+        "git",
+        "github actions",
+        "jenkins",
+        "terraform",
+        "gcp",
+        "operating systems",
+        "data structures and algorithms",
+        "dbms",
+        "problem-solving",
+        "team leadership"
+    ],
+    "missingSkills": [
+        "tableau",
+        "model deployment",
+        "aws",
+        "azure",
+        "computer networks",
+        "oop",
+        "analytical skills",
+        "people management",
+        "time management",
+        "project management",
+        "communication skills"
+    ],
+    "resumeOnlySkills": [
+        "keras",
+        "matplotlib",
+        "seaborn",
+        "aws ec2, s3, lambda",
+        "cn",
+        "oop java and python",
+        "agile",
+        "scrum",
+        "stakeholder communication"
+    ],
+    "message": "You have a strong match with this job description!"
+}
 
+const [score, setScore] = useState(data.score);
+const [matchedSkills, setMatchedSkills] = useState(data.matchedSkills);
+const [missingSkills, setMissingSkills] = useState(data.missingSkills);
+const [matchedMessage, setMatchedMessage] = useState(data.message);
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (name === "jobDescription") {
@@ -263,6 +332,8 @@ const Analyse = () => {
             </button>
           </div>
         </form>
+
+        <Results score={score} matchedSkills={matchedSkills} missingSkills={missingSkills} matchedMessage={matchedMessage}/>
       </div>
     </div>
   );
