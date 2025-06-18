@@ -1,9 +1,11 @@
 import React from "react";
 import { Circle, FileText, Upload, Briefcase, FileUp, X } from "lucide-react";
 import { useState } from "react";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 const Analyse = () => {
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [jobDescriptionUploaded, setJobDescriptionUploaded] = useState(false);
+  const[loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     resume: null,
@@ -35,21 +37,27 @@ const Analyse = () => {
   const jdSize = jdFile ? (jdFile.size / 1024).toFixed(2) + " KB" : "";
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  setLoading(true); // Set loading to true when request starts
 
-    const data = new FormData();
-    data.append("resume", formData.resume);
-    data.append("jd", formData.jobDescription);
+  const data = new FormData();
+  data.append("resume", formData.resume);
+  data.append("jd", formData.jobDescription);
 
-    // Example POST request
-    fetch("https://jobfit-dk4l.onrender.com/api/v1/model/analyse", {
-      method: "POST",
-      body: data,
+  fetch("https://jobfit-dk4l.onrender.com/api/v1/model/analyse", {
+    method: "POST",
+    body: data,
+  })
+    .then((res) => res.json())
+    .then((response) => {
+      console.log("Success:", response);
+      setLoading(false); // Set loading to false when request completes
     })
-      .then((res) => res.json())
-      .then((response) => console.log("Success:", response))
-      .catch((error) => console.error("Error:", error));
-  };
+    .catch((error) => {
+      console.error("Error:", error);
+      setLoading(false); // Set loading to false on error
+    });
+};
   return (
     <div className="flex-grow container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
@@ -89,7 +97,7 @@ const Analyse = () => {
                 <div
                   className={`w-4 h-4 ${
                     jobDescriptionUploaded
-                      ? "bg-blue-600 "
+                      ? "bg-blue-600 border-none rounded-full"
                       : "bg-gray-300 border-none rounded-full"
                   } `}
                 ></div>
@@ -146,7 +154,7 @@ const Analyse = () => {
                     </div>
                   </div>
                   <div className="ml-2 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-red-500">
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5" onClick={() => setResumeUploaded(false)}/>
                   </div>
                 </div>
               </div>
@@ -204,7 +212,7 @@ const Analyse = () => {
                     </div>
                   </div>
                   <div className="ml-2 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-red-500 cursor-pointer">
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5" onClick={ ()=> {setJobDescriptionUploaded(false)}} />
                   </div>
                 </div>
               </div>
@@ -248,8 +256,10 @@ const Analyse = () => {
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
               disabled={!(resumeUploaded && jobDescriptionUploaded)}
+              onClick={handleSubmit}
             >
               Analyse Match
+              {/* {loading ?():()} */}
             </button>
           </div>
         </form>
