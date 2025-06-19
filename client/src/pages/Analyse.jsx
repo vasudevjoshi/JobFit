@@ -2,7 +2,7 @@ import React from "react";
 import { Circle, FileText, Upload, Briefcase, FileUp, X } from "lucide-react";
 import { useState } from "react";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import Results from "../components/results";
+import Results from "../components/Results.jsx";
 const Analyse = () => {
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [jobDescriptionUploaded, setJobDescriptionUploaded] = useState(false);
