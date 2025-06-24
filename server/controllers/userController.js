@@ -107,54 +107,57 @@ const signup = async(req,res)=>{
         })
     }
 }
-const login = async (req,res) =>{
-    try{
-        const {email,password}  = req.body;
-        if(!email || !password){
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
             return res.status(400).json({
-                success:false,
-                message:"Please fill all the fields",
+                success: false,
+                message: "Please fill all the fields",
             });
         }
-        const userData = await User.findOne({email:email});
-        if(!userData){
+        const userData = await User.findOne({ email: email });
+        if (!userData) {
             return res.status(400).json({
-                success:false,
-                message:"User not found,Please sign up",
+                success: false,
+                message: "User not found,Please sign up",
             });
         }
-        const isPasswordMatched = await bcrypt.compare(password,userData.password);
-        if(isPasswordMatched){
+        const isPasswordMatched = await bcrypt.compare(password, userData.password);
+        if (isPasswordMatched) {
             const payload = {
-                email:userData.email,
-                id:userData._id,
+                email: userData.email,
+                id: userData._id,
             }
-            const token = jwt.sign(payload,process.env.JWT_SECRET,{
-                expiresIn:"1d",
+            const token = jwt.sign(payload, process.env.JWT_SECRET, {
+                expiresIn: "1d",
             });
             userData.token = token;
             userData.password = undefined;
             const options = {
-                expires: new Date(Date.now() + 3*24*60*60*1000),
-                httpOnly:true,
+                expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+                httpOnly: true,
+                // Add these for cross-site cookies if needed:
+                // secure: true,
+                // sameSite: 'none',
             }
-            res.cookie("token",token,options).status(200).json({
-                success:true,
-                message:"User logged in successfully",
-                token:token,
-                data:userData,
+            // Set cookie with key as 'jobfit_token'
+            res.cookie("jobfit_token", token, options).status(200).json({
+                success: true,
+                message: "User logged in successfully",
+                token: token,
+                data: userData,
             });
         }
-        else
-        {
+        else {
             return res.status(400).json({
-                success:false,
-                message:"Invalid credentials",
+                success: false,
+                message: "Invalid credentials",
             });
         }
     }
-    catch(error){
-        console.log("Error in logging in",error.message);
+    catch (error) {
+        console.log("Error in logging in", error.message);
         return res.status(500).json({
             success: false,
             message: "Internal server error",
