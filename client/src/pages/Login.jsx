@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import { toast } from 'react-hot-toast'
-import {useAuth} from '../context/Auth.jsx'; // Adjust the import path as necessary
+import { useAuth } from '../context/Auth.jsx'; // Adjust the import path as necessary
+
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -10,6 +11,7 @@ const Login = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const Auth = useAuth();
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -37,7 +39,18 @@ const Login = () => {
         Auth.setUser(result.data);
         Auth.setIsAuthenticated(true);
         Auth.setLoading(false);
-        // Optionally save token: localStorage.setItem('token', data.token);
+
+        // Store the cookie/token in localStorage if sent in response
+        // If your backend sends a token in the response, store it:
+        if (result.token) {
+          localStorage.setItem('jobfit_token', result.token);
+        }
+
+        // If you want to store the cookie value (not recommended for httpOnly cookies),
+        // you can parse document.cookie here if the cookie is not httpOnly.
+        // Example:
+        // localStorage.setItem('jobfit_cookie', document.cookie);
+
         setTimeout(() => navigate('/'), 1000); // Redirect after 1s
       } else {
         setMessage(result.message || 'Login failed');
@@ -45,7 +58,7 @@ const Login = () => {
       }
     } catch (err) {
       setMessage('Error during login');
-       toast.error(err.message || 'Login failed');
+      toast.error(err.message || 'Login failed');
     }
     setLoading(false);
   };
@@ -56,7 +69,7 @@ const Login = () => {
         <div className="w-full max-w-sm sm:max-w-md p-4 sm:p-8 bg-white rounded-xl shadow-sm border border-gray-100">
           <div>
             <div className='mx-auto flex justify-center'>
-              <LogIn className='w-10 h-10 sm:w-12 sm:h-12 text-blue-600'/>
+              <LogIn className='w-10 h-10 sm:w-12 sm:h-12 text-blue-600' />
             </div>
             <h2 className="mt-6 text-center text-2xl sm:text-3xl font-bold text-gray-900">
               Sign in to your account
@@ -67,6 +80,7 @@ const Login = () => {
           </div>
           {message && (
             <div className={`my-4 text-center text-sm ${success ? 'text-green-600' : 'text-red-600'}`}>
+              {message}
             </div>
           )}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

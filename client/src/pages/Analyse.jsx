@@ -1,86 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { Circle, FileText, Upload, Briefcase, FileUp, X } from "lucide-react";
-import { useState } from "react";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import Results from "../components/Results.jsx";
+
 const Analyse = () => {
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [jobDescriptionUploaded, setJobDescriptionUploaded] = useState(false);
-  const[loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     resume: null,
     jobDescription: null,
   });
+
+  // Demo data for Results
   const data = {
     "success": true,
     "score": 75,
     "matchedSkills": [
-        "html",
-        "css",
-        "javascript",
-        "react.js",
-        "node.js",
-        "express.js",
-        "rest apis",
-        "graphql",
-        "mongodb",
-        "postgresql",
-        "python",
-        "pandas",
-        "numpy",
-        "sql",
-        "power bi",
-        "scikit-learn",
-        "tensorflow",
-        "pytorch",
-        "nlp",
-        "flask",
-        "fastapi",
-        "docker",
-        "kubernetes",
-        "git",
-        "github actions",
-        "jenkins",
-        "terraform",
-        "gcp",
-        "operating systems",
-        "data structures and algorithms",
-        "dbms",
-        "problem-solving",
-        "team leadership"
+      "html", "css", "javascript", "react.js", "node.js", "express.js", "rest apis", "graphql", "mongodb", "postgresql", "python", "pandas", "numpy", "sql", "power bi", "scikit-learn", "tensorflow", "pytorch", "nlp", "flask", "fastapi", "docker", "kubernetes", "git", "github actions", "jenkins", "terraform", "gcp", "operating systems", "data structures and algorithms", "dbms", "problem-solving", "team leadership"
     ],
     "missingSkills": [
-        "tableau",
-        "model deployment",
-        "aws",
-        "azure",
-        "computer networks",
-        "oop",
-        "analytical skills",
-        "people management",
-        "time management",
-        "project management",
-        "communication skills"
+      "tableau", "model deployment", "aws", "azure", "computer networks", "oop", "analytical skills", "people management", "time management", "project management", "communication skills"
     ],
     "resumeOnlySkills": [
-        "keras",
-        "matplotlib",
-        "seaborn",
-        "aws ec2, s3, lambda",
-        "cn",
-        "oop java and python",
-        "agile",
-        "scrum",
-        "stakeholder communication"
+      "keras", "matplotlib", "seaborn", "aws ec2, s3, lambda", "cn", "oop java and python", "agile", "scrum", "stakeholder communication"
     ],
     "message": "You have a strong match with this job description!"
-}
+  };
 
-const [score, setScore] = useState(data.score);
-const [matchedSkills, setMatchedSkills] = useState(data.matchedSkills);
-const [missingSkills, setMissingSkills] = useState(data.missingSkills);
-const [matchedMessage, setMatchedMessage] = useState(data.message);
+  const [score, setScore] = useState(data.score);
+  const [matchedSkills, setMatchedSkills] = useState(data.matchedSkills);
+  const [missingSkills, setMissingSkills] = useState(data.missingSkills);
+  const [matchedMessage, setMatchedMessage] = useState(data.message);
+
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (name === "jobDescription") {
@@ -90,57 +43,62 @@ const [matchedMessage, setMatchedMessage] = useState(data.message);
     }
     setFormData({
       ...formData,
-      [name]: files[0], // Store the file (PDF)
+      [name]: files[0],
     });
   };
 
   const resumeFile = formData.resume;
   const resumeName = resumeFile ? resumeFile.name : "";
-  const resumeSize = resumeFile
-    ? Math.round(resumeFile.size / 1024) + " KB"
-    : "";
+  const resumeSize = resumeFile ? Math.round(resumeFile.size / 1024) + " KB" : "";
 
-  // To get the job description file name and size:
   const jdFile = formData.jobDescription;
   const jdName = jdFile ? jdFile.name : "";
   const jdSize = jdFile ? (jdFile.size / 1024).toFixed(2) + " KB" : "";
 
   const handleSubmit = (e) => {
-  e.preventDefault();
-  setLoading(true); // Set loading to true when request starts
+    e.preventDefault();
+    setLoading(true);
 
-  const data = new FormData();
-  data.append("resume", formData.resume);
-  data.append("jd", formData.jobDescription);
+    const data = new FormData();
+    data.append("resume", formData.resume);
+    data.append("jobDescription", formData.jobDescription);
 
-  fetch("https://jobfit-dk4l.onrender.com/api/v1/model/analyse", {
-    method: "POST",
-    body: data,
-  })
-    .then((res) => res.json())
-    .then((response) => {
-      console.log("Success:", response);
-      setLoading(false); // Set loading to false when request completes
+    // Get token from localStorage
+    const token = localStorage.getItem('jobfit_token');
+console.log("Token:", token);
+    fetch("https://jobfit-dk4l.onrender.com/api/v1/model/analyse", {
+      method: "POST",
+      body: data,
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+      credentials: "include", // If you want to send cookies as well
     })
-    .catch((error) => {
-      console.error("Error:", error);
-      setLoading(false); // Set loading to false on error
-    });
+      .then((res) => res.json())
+      .then((response) => {
+        console.log("Success:", response);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setLoading(false);
+      });
 };
+
   return (
-    <div className="flex-grow container mx-auto px-4 py-8">
+    <div className="flex-grow container mx-auto px-2 sm:px-4 py-6 sm:py-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Resume & Job Description Analyser
           </h1>
-          <p className="text-gray-600 ">
-            Upload Your Resume and a job description to get a detailed analysis
-            of your skills match.
+          <p className="text-gray-600">
+            Upload your resume and a job description to get a detailed analysis of your skills match.
           </p>
         </div>
+        {/* Progress Steps */}
         <div className="py-4 mb-8 mt-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex flex-col items-center">
               <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-blue-600 bg-blue-50 text-blue-600">
                 <div className="w-4 h-4 rounded-full bg-blue-600"></div>
@@ -149,41 +107,17 @@ const [matchedMessage, setMatchedMessage] = useState(data.message);
                 Upload Documents
               </p>
             </div>
-            <div
-              className={`flex-1 h-0.5 mx-2  ${
-                jobDescriptionUploaded ? "bg-blue-600" : "bg-gray-300"
-              }`}
-            ></div>
+            <div className={`flex-1 h-0.5 mx-2 ${jobDescriptionUploaded ? "bg-blue-600" : "bg-gray-300"} hidden sm:block`}></div>
             {/* analysis */}
             <div className="flex flex-col items-center">
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  jobDescriptionUploaded
-                    ? " border-blue-600 bg-blue-50 text-blue-600"
-                    : "border-gray-300 text-gray-400"
-                }`}
-              >
-                <div
-                  className={`w-4 h-4 ${
-                    jobDescriptionUploaded
-                      ? "bg-blue-600 border-none rounded-full"
-                      : "bg-gray-300 border-none rounded-full"
-                  } `}
-                ></div>
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${jobDescriptionUploaded ? " border-blue-600 bg-blue-50 text-blue-600" : "border-gray-300 text-gray-400"}`}>
+                <div className={`w-4 h-4 ${jobDescriptionUploaded ? "bg-blue-600 border-none rounded-full" : "bg-gray-300 border-none rounded-full"}`}></div>
               </div>
-              <p
-                className={`mt-2 text-sm font-medium ${
-                  jobDescriptionUploaded ? "text-blue-600" : "text-gray-500"
-                }`}
-              >
+              <p className={`mt-2 text-sm font-medium ${jobDescriptionUploaded ? "text-blue-600" : "text-gray-500"}`}>
                 Analysis
               </p>
             </div>
-            <div
-              className={`flex-1 h-0.5 mx-2  ${
-                jobDescriptionUploaded ? "bg-blue-600" : "bg-gray-300"
-              }`}
-            ></div>
+            <div className={`flex-1 h-0.5 mx-2 ${jobDescriptionUploaded ? "bg-blue-600" : "bg-gray-300"} hidden sm:block`}></div>
             {/* results */}
             <div className="flex flex-col items-center">
               <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 text-gray-400">
@@ -194,20 +128,19 @@ const [matchedMessage, setMatchedMessage] = useState(data.message);
           </div>
         </div>
 
-        {/* form to upload the documents*/}
+        {/* form to upload the documents */}
         <form
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
           onSubmit={handleSubmit}
         >
-          {/* resume upload  */}
-          <div className=" border border-gray-200 rounded-xl overflow-hidden">
+          {/* resume upload */}
+          <div className="border border-gray-200 rounded-xl overflow-hidden">
             <div className="bg-blue-50 px-4 py-3 border-b border-gray-200">
               <div className="flex items-center">
                 <FileText className="text-blue-600 mr-2" />
                 <p className="font-semibold text-gray-900">Resume</p>
               </div>
             </div>
-
             {resumeUploaded ? (
               <div className="p-6 mx-auto">
                 <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
@@ -219,11 +152,11 @@ const [matchedMessage, setMatchedMessage] = useState(data.message);
                       <p className="text-sm font-medium text-gray-900">
                         {resumeName}
                       </p>
-                      <p className=" text-xs text-gray-500">{resumeSize}</p>
+                      <p className="text-xs text-gray-500">{resumeSize}</p>
                     </div>
                   </div>
                   <div className="ml-2 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-red-500">
-                    <X className="w-5 h-5" onClick={() => setResumeUploaded(false)}/>
+                    <X className="w-5 h-5" onClick={() => setResumeUploaded(false)} />
                   </div>
                 </div>
               </div>
@@ -258,8 +191,8 @@ const [matchedMessage, setMatchedMessage] = useState(data.message);
               </div>
             )}
           </div>
-          {/* job description upload  */}
-          <div className=" border border-gray-200 rounded-xl overflow-hidden">
+          {/* job description upload */}
+          <div className="border border-gray-200 rounded-xl overflow-hidden">
             <div className="bg-purple-50 px-4 py-3 border-b border-gray-200">
               <div className="flex items-center">
                 <Briefcase className="text-purple-600 mr-2" />
@@ -281,7 +214,7 @@ const [matchedMessage, setMatchedMessage] = useState(data.message);
                     </div>
                   </div>
                   <div className="ml-2 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-red-500 cursor-pointer">
-                    <X className="w-5 h-5" onClick={ ()=> {setJobDescriptionUploaded(false)}} />
+                    <X className="w-5 h-5" onClick={() => setJobDescriptionUploaded(false)} />
                   </div>
                 </div>
               </div>
@@ -316,10 +249,11 @@ const [matchedMessage, setMatchedMessage] = useState(data.message);
               </div>
             )}
           </div>
-          <div className="flex justify-center mt-2 col-span-2">
+          {/* Submit button centered and full width on mobile */}
+          <div className="flex justify-center mt-2 col-span-1 md:col-span-2">
             <button
               type="submit"
-              className={`font-semibold py-3 px-6 rounded-lg transition-colors ${
+              className={`w-full md:w-auto font-semibold py-3 px-6 rounded-lg transition-colors ${
                 resumeUploaded && jobDescriptionUploaded
                   ? "bg-blue-600 text-white cursor-pointer hover:bg-blue-700"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -327,13 +261,20 @@ const [matchedMessage, setMatchedMessage] = useState(data.message);
               disabled={!(resumeUploaded && jobDescriptionUploaded)}
               onClick={handleSubmit}
             >
-              Analyse Match
-              {/* {loading ?():()} */}
+              {loading ? "Analysing..." : "Analyse Match"}
             </button>
           </div>
         </form>
 
-        <Results score={score} matchedSkills={matchedSkills} missingSkills={missingSkills} matchedMessage={matchedMessage}/>
+        {/* Results section */}
+        <div className="mt-8">
+          <Results
+            score={score}
+            matchedSkills={matchedSkills}
+            missingSkills={missingSkills}
+            matchedMessage={matchedMessage}
+          />
+        </div>
       </div>
     </div>
   );
