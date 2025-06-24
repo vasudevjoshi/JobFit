@@ -137,12 +137,15 @@ const login = async (req, res) => {
             const options = {
                 expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
                 httpOnly: true,
-                // Add these for cross-site cookies if needed:
                 // secure: true,
                 // sameSite: 'none',
             }
             // Set cookie with key as 'jobfit_token'
-            res.cookie("jobfit_token", token, options).status(200).json({
+            res.cookie("jobfit_token", token, options);
+            // Set token in response header
+            res.setHeader("jobfit_token", token);
+            // Send response
+            return res.status(200).json({
                 success: true,
                 message: "User logged in successfully",
                 token: token,

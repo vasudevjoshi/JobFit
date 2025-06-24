@@ -3,6 +3,7 @@ require("dotenv").config();
 const isLoggedIn = async (req,res,next) =>{
     try{
         const token  = req.cookies.jobfit_token || req.body.token || req.header("Authorization")?.replace("Bearer ","");
+        console.log("Token received in isLoggedIn middleware:", token);
         if(!token){
             return res.status(401).json({
                 success:false,
