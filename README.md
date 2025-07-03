@@ -47,7 +47,6 @@ jobfit/
 │   ├── routes/
 │   ├── controllers/
 │   └── ...
-├── uploads/           # Temporary file storage
 ├── .env
 └── README.md
 ```
@@ -63,7 +62,7 @@ jobfit/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/jobfit.git
+git clone https://github.com/vasudevjoshi/jobfit.git
 cd jobfit
 ```
 
@@ -82,7 +81,7 @@ npm install
 Create a `.env` file in the `server/` folder with:
 ```env
 PORT=5000
-GEMINI_API_KEY=your_api_key
+Llama_API_KEY=your_api_key
 YOUTUBE_API_KEY=your_youtube_api_key
 ```
 
