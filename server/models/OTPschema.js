@@ -45,7 +45,7 @@ async function sendVerificationEmail(email, otp) {
         `;
         const isMailSent = await mailSender(
             email,
-            'OTP Verification',
+            'Your JobFit Email Verification Code',
             htmlContent
         );
         if (isMailSent)

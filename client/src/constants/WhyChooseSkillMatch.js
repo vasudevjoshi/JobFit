@@ -11,8 +11,4 @@ export const info = [
         title: "Skill Development",
         description: "Receive personalized recommendations for improving your skill set",
     },
-    {
-        title: "Time Saving",
-        description: "Quickly identify if you're a good fit for a position before applying.",
-    },
 ]
