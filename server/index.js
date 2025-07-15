@@ -11,6 +11,7 @@ const cookieParser = require('cookie-parser');
 connectDB();
 app.use(cookieParser());
 const allowedOrigins = [
+  'https://resumematchmaker.netlify.app/',
   'https://adorable-tapioca-e0ee6d.netlify.app',
   'http://localhost:5173'
 ];
