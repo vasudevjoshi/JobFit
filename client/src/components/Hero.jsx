@@ -2,8 +2,11 @@ import React from 'react';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import { Typewriter } from 'react-simple-typewriter';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/Auth.jsx';
 
 const Hero = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="relative w-11/12 max-w-6xl h-auto md:h-[32rem] text-center py-16 md:py-24 px-4 mx-auto rounded-xl mt-8 mb-16 overflow-hidden border border-gray-100 shadow-lg">
       {/* Animated Background with subtle grain texture */}
@@ -43,17 +46,37 @@ const Hero = () => {
           Elevate your job search with our AI-powered resume analysis. Get precise matching with job descriptions, actionable feedback, and the competitive edge you need.
         </p>
         
+        {/* Conditional Button Rendering */}
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button className="px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group">
-            <NavLink to='/login' className="flex items-center font-medium">
-              Start Analyzing <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </NavLink>
-          </button>
-          <button className="px-6 py-3 bg-white text-gray-800 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md font-medium">
-            <NavLink to='/signup' className="flex items-center">
-              Join Free
-            </NavLink>
-          </button>
+          {isAuthenticated ? (
+            // Buttons for logged-in users
+            <>
+              <button className="px-6 py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group">
+                <NavLink to='/analyser' className="flex items-center font-medium">
+                  Start Analysis <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </NavLink>
+              </button>
+              <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg font-medium">
+                <NavLink to='/profile' className="flex items-center">
+                  View Profile
+                </NavLink>
+              </button>
+            </>
+          ) : (
+            // Buttons for non-logged-in users
+            <>
+              <button className="px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group">
+                <NavLink to='/login' className="flex items-center font-medium">
+                  Start Analyzing <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </NavLink>
+              </button>
+              <button className="px-6 py-3 bg-white text-gray-800 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md font-medium">
+                <NavLink to='/signup' className="flex items-center">
+                  Join Free
+                </NavLink>
+              </button>
+            </>
+          )}
         </div>
         
         <div className="mt-10 flex items-center justify-center space-x-2 text-sm text-gray-500">

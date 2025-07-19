@@ -8,10 +8,13 @@ const Analyse = () => {
   const [loading, setLoading] = useState(false);
 
   // State for backend data
-  const [score, setScore] = useState(null);
+  const [finalScore, setFinalScore] = useState(null);
+  const [skillsScore, setSkillsScore] = useState(null);
+  const [experienceScore, setExperienceScore] = useState(null);
   const [matchedSkills, setMatchedSkills] = useState([]);
   const [missingSkills, setMissingSkills] = useState([]);
   const [matchedMessage, setMatchedMessage] = useState("");
+  const [experienceAnalysis, setExperienceAnalysis] = useState(null);
   const [error, setError] = useState(""); // For error message
 
   const [formData, setFormData] = useState({
@@ -20,7 +23,7 @@ const Analyse = () => {
   });
 
   // Track if results are generated
-  const resultsGenerated = score !== null && !error;
+  const resultsGenerated = finalScore !== null && !error;
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
@@ -67,10 +70,13 @@ const Analyse = () => {
       .then((response) => {
         setLoading(false);
         if (response.success) {
-          setScore(response.score);
+          setFinalScore(response.finalScore);
+          setSkillsScore(response.skillsScore);
+          setExperienceScore(response.experienceScore);
           setMatchedSkills(response.matchedSkills);
           setMissingSkills(response.missingSkills);
           setMatchedMessage(response.message);
+          setExperienceAnalysis(response.experienceAnalysis);
           setError("");
         } else {
           setError(response.message || "Oops! Something went wrong. Please wait 10 seconds before trying again.");
@@ -286,10 +292,13 @@ const Analyse = () => {
             </div>
           ) : resultsGenerated ? (
             <Results
-              score={score}
+              finalScore={finalScore}
+              skillsScore={skillsScore}
+              experienceScore={experienceScore}
               matchedSkills={matchedSkills}
               missingSkills={missingSkills}
               matchedMessage={matchedMessage}
+              experienceAnalysis={experienceAnalysis}
             />
           ) : null}
         </div>
