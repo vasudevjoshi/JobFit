@@ -58,6 +58,125 @@ function compareSkills(jdSkillsRaw, resumeSkillsRaw) {
   };
 }
 
+function compareSkillsAndExperience(jdSkillsRaw, resumeSkillsRaw, jdExperience, resumeExperience) {
+  const cleanSkill = (skill) =>
+    skill
+      .replace(/^[-•\d.\s]+/, '') // remove bullets or numbering
+      .replace(/[()]/g, '') // remove brackets
+      .replace(/&/g, 'and') // normalize symbols
+      .toLowerCase()
+      .trim();
+
+  // Skip the heading line
+  const jdSkills = jdSkillsRaw.slice(1).map(cleanSkill);
+  const resumeSkills = resumeSkillsRaw.slice(1).map(cleanSkill);
+
+  // Step 2: Create Sets
+  const jdSet = new Set(jdSkills);
+  const resumeSet = new Set(resumeSkills);
+
+  // Step 3: Compare skills
+  const matchedSkills = [...jdSet].filter(skill => resumeSet.has(skill));
+  const jdOnly = [...jdSet].filter(skill => !resumeSet.has(skill));
+  const resumeOnly = [...resumeSet].filter(skill => !jdSet.has(skill));
+
+  // Step 4: Calculate Skills Score (70% weight)
+  const matchCount = matchedSkills.length;
+  const totalJD = jdSet.size;
+  const skillsScore = totalJD > 0 ? Math.round((matchCount / totalJD) * 100) : 0;
+
+  // Step 5: Calculate Experience Score (30% weight)
+  let experienceScore = 0;
+  let experienceStatus = '';
+  
+  if (jdExperience === 0) {
+    // No experience required
+    experienceScore = 100;
+    experienceStatus = 'No specific experience required';
+  } else if (resumeExperience >= jdExperience) {
+    // Meets or exceeds experience requirement
+    experienceScore = 100;
+    experienceStatus = `Meets requirement (${resumeExperience}+ years vs ${jdExperience}+ required)`;
+  } else if (resumeExperience >= jdExperience * 0.8) {
+    // Close to requirement (80% or more)
+    experienceScore = 80;
+    experienceStatus = `Close to requirement (${resumeExperience} years vs ${jdExperience}+ required)`;
+  } else if (resumeExperience >= jdExperience * 0.5) {
+    // Partial experience (50-80%)
+    experienceScore = 50;
+    experienceStatus = `Below requirement (${resumeExperience} years vs ${jdExperience}+ required)`;
+  } else {
+    // Significantly below requirement
+    experienceScore = 20;
+    experienceStatus = `Significantly below requirement (${resumeExperience} years vs ${jdExperience}+ required)`;
+  }
+
+  // Step 6: Calculate Final Score (Skills: 70%, Experience: 30%)
+  const finalScore = Math.round((skillsScore * 0.7) + (experienceScore * 0.3));
+
+  // Step 7: Generate match message
+  let matchMessage = '';
+  if (finalScore >= 80) {
+    matchMessage = "Excellent match! You have strong skills and meet the experience requirements.";
+  } else if (finalScore >= 65) {
+    matchMessage = "Good match! You have most required skills with adequate experience.";
+  } else if (finalScore >= 50) {
+    matchMessage = "Decent match, but there's room for improvement in skills or experience.";
+  } else {
+    matchMessage = "Your profile doesn't strongly match this job. Consider gaining more experience or developing required skills.";
+  }
+
+  // Step 8: Return enhanced result
+  return {
+    matched: matchedSkills,
+    unmatched: jdOnly,
+    skillsScore: skillsScore,
+    experienceScore: experienceScore,
+    finalScore: finalScore,
+    resumeOnly: resumeOnly,
+    message: matchMessage,
+    experienceAnalysis: {
+      required: jdExperience,
+      candidate: resumeExperience,
+      status: experienceStatus
+    }
+  };
+}
+
+function extractExperienceYears(text) {
+  // Common patterns for experience requirements
+  const patterns = [
+    /(\d+)\+?\s*(?:years?|yrs?)\s*(?:of\s*)?(?:experience|exp)/gi,
+    /(\d+)\s*to\s*(\d+)\s*(?:years?|yrs?)/gi,
+    /minimum\s*(?:of\s*)?(\d+)\s*(?:years?|yrs?)/gi,
+    /at\s*least\s*(\d+)\s*(?:years?|yrs?)/gi,
+    /(\d+)\s*(?:years?|yrs?)\s*(?:minimum|min)/gi,
+    /experience.*?(\d+)\+?\s*(?:years?|yrs?)/gi,
+    /(\d+)\+?\s*(?:years?|yrs?).*?experience/gi
+  ];
+
+  let maxExperience = 0;
+  
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      const years = parseInt(match[1]);
+      if (!isNaN(years) && years > maxExperience) {
+        maxExperience = years;
+      }
+      // For range patterns like "2 to 5 years"
+      if (match[2]) {
+        const endYears = parseInt(match[2]);
+        if (!isNaN(endYears) && endYears > maxExperience) {
+          maxExperience = endYears;
+        }
+      }
+    }
+  }
+  
+  return maxExperience;
+}
+
 async function extractSkillsWithGroq(text, type) {
   const prompt = `Extract all actual skills (both technical and soft skills) mentioned in the following ${type}. Return only the list of skill names as plain text, one skill per line. Do not include any explanations or extra text.\n\n${text}`;
 
@@ -82,6 +201,29 @@ async function extractSkillsWithGroq(text, type) {
     .filter((skill) => skill);
 }
 
+async function extractExperienceWithGroq(text, type) {
+  const prompt = `Extract the total years of experience mentioned in the following ${type}. Look for phrases like "X years of experience", "X+ years", "X-Y years experience", etc. Return only the number of years as a single number. If multiple experiences are mentioned, return the highest number. If no clear experience is mentioned, return 0.\n\n${text}`;
+
+  const response = await axios.post(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      model: GROQ_MODEL,
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      },
+    }
+  );
+
+  // Extract years and convert to number
+  const experienceText = response.data.choices[0].message.content.trim();
+  const experienceYears = parseInt(experienceText) || 0;
+  return experienceYears;
+}
+
 const getResponse = async (req, res) => {
   try {
     const now = Date.now();
@@ -103,8 +245,11 @@ const getResponse = async (req, res) => {
         message: "Please upload both JD and Resume files"
       });
     }
+    
     let jdSkillsRaw = [];
     let resumeSkillsRaw = [];
+    let jdExperience = 0;
+    let resumeExperience = 0;
 
     for (let i = 0; i < 2; i++) {
       const file = i === 0 ? jdFile : resumeFile;
@@ -114,25 +259,41 @@ const getResponse = async (req, res) => {
       const dataBuffer = file.data;
       const pdfData = await pdfParse(dataBuffer);
       const text = pdfData.text;
-      // Extract skills using Groq
+      
+      // Extract skills and experience using Groq
       if (text) {
         if (i === 0) {
           jdSkillsRaw = await extractSkillsWithGroq(text, type);
+          jdExperience = await extractExperienceWithGroq(text, type);
         } else {
           resumeSkillsRaw = await extractSkillsWithGroq(text, type);
+          resumeExperience = await extractExperienceWithGroq(text, type);
         }
       }
     }
 
-    const { matched, unmatched, score, resumeOnly, message: matchMessage } = compareSkills(jdSkillsRaw, resumeSkillsRaw);
+    // Use the enhanced comparison function
+    const {
+      matched,
+      unmatched,
+      skillsScore,
+      experienceScore,
+      finalScore,
+      resumeOnly,
+      message: matchMessage,
+      experienceAnalysis
+    } = compareSkillsAndExperience(jdSkillsRaw, resumeSkillsRaw, jdExperience, resumeExperience);
 
     res.status(200).json({
       success: true,
-      score,
+      finalScore: finalScore,
+      skillsScore: skillsScore,
+      experienceScore: experienceScore,
       matchedSkills: matched,
       missingSkills: unmatched,
       resumeOnlySkills: resumeOnly,
-      message: matchMessage
+      message: matchMessage,
+      experienceAnalysis: experienceAnalysis
     });
 
   } catch (error) {
