@@ -1,34 +1,55 @@
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
-const isLoggedIn = async (req,res,next) =>{
-    try{
-        const token  = req.cookies.jobfit_token || req.body.token || req.header("Authorization")?.replace("Bearer ","");
-        console.log("Token received in isLoggedIn middleware:", token);
-        if(!token){
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
+const auth = async (req, res, next) => {
+    try {
+        // Extract token from multiple sources
+        const token = req.cookies.jobfit_token || 
+                     req.header('Authorization')?.replace('Bearer ', '') || 
+                     req.header('jobfit_token') ||
+                     req.body.token;
+
+        if (!token) {
             return res.status(401).json({
-                success:false,
-                message:"Please login to access this resource",
+                success: false,
+                message: 'Access denied. No token provided.',
             });
         }
-        try{
 
-            const decoded = jwt.verify(token,process.env.JWT_SECRET);
-            req.user = decoded;
+        try {
+            // Verify token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            
+            // Check if user still exists
+            const user = await User.findById(decoded.id).select('-password');
+            if (!user) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'User not found. Token invalid.',
+                });
+            }
 
-        }catch(error){
+            // Add user info to request object
+            req.user = {
+                id: decoded.id,
+                email: decoded.email,
+                user: user
+            };
+            
+            next();
+        } catch (jwtError) {
             return res.status(401).json({
-                success:false,
-                message:"Token is invalid",
+                success: false,
+                message: 'Invalid token.',
             });
         }
-        next();
-    }catch(error){
-        console.log("Error in isLoggedIn middleware",error.message);
-        return res.status(401).json({
-            success:false,
-            message:"Something went wrong while validating the token",
+    } catch (error) {
+        console.error('Auth middleware error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error in authentication.',
         });
     }
-}
+};
 
-module.exports = {isLoggedIn};
+module.exports = auth;

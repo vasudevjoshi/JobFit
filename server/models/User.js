@@ -12,6 +12,11 @@ const UserSchema = mongoose.Schema({
         type:String,
         required:true
     },
+    phone:{
+        type:String,
+        required:false,
+        default:null
+    },
     image:{
         type:String,
         required:true
